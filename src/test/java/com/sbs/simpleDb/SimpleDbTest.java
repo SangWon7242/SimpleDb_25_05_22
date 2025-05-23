@@ -55,10 +55,10 @@ public class SimpleDbTest {
             INSERT INTO article
             SET createDate = NOW(),
             modifiedDate = NOW(),
-            subject = '%s',
-            content = '%s',
-            isBlind = %s;
-            """.formatted(subject, content, isBlind));
+            subject = ?,
+            content = ?,
+            isBlind = ?;
+            """, subject, content, isBlind);
         }
     );
   }

@@ -2,10 +2,7 @@ package com.sbs.simpleDb;
 
 import lombok.Setter;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class SimpleDb {
   private Connection conn;
@@ -29,12 +26,16 @@ public class SimpleDb {
     }
   }
 
-  public void run(String sql) {
+  public void run(String sql, Object... args) {
     System.out.println("SQL : " + sql);
 
-    try {
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(sql);
+    try(PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+
+      for (int i = 0; i < args.length; i++) {
+        preparedStatement.setObject(i + 1, args[i]);
+      }
+
+      preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new RuntimeException("SQL 실행 중 오류 발생", e);
     }
