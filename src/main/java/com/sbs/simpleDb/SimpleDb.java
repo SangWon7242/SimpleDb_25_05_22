@@ -6,8 +6,6 @@ import java.sql.*;
 
 public class SimpleDb {
   private Connection conn;
-
-  @Setter
   private boolean devMode;
 
   public SimpleDb(String host, String username, String password, String dbName) {
@@ -39,6 +37,23 @@ public class SimpleDb {
     } catch (SQLException e) {
       throw new RuntimeException("SQL 실행 중 오류 발생", e);
     }
+  }
+
+  public void setDevMode(boolean mode) {
+    this.devMode = mode;
+  }
+
+  boolean isDevMode() {
+    return devMode;
+  }
+
+  public Sql genSql() {
+    return new Sql(this);
+  }
+
+  // Sql 클래스에서 사용하기 위한 내부 메서드
+  Connection getConnection() {
+    return conn;
   }
 
   public void close() {

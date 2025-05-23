@@ -4,12 +4,13 @@ import org.junit.jupiter.api.*;
 
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @TestInstance(PER_CLASS)
 public class SimpleDbTest {
   private SimpleDb simpleDb;
-  
+
   // beforeAll : 다른 테스트 케이스 실행 전에 제일 먼저 실행되는 메서드
   @BeforeAll
   public void beforeAll() {
@@ -52,19 +53,40 @@ public class SimpleDbTest {
           String content = "내용 %s".formatted(no);
 
           simpleDb.run("""
-            INSERT INTO article
-            SET createDate = NOW(),
-            modifiedDate = NOW(),
-            subject = ?,
-            content = ?,
-            isBlind = ?;
-            """, subject, content, isBlind);
+              INSERT INTO article
+              SET createDate = NOW(),
+              modifiedDate = NOW(),
+              subject = ?,
+              content = ?,
+              isBlind = ?;
+              """, subject, content, isBlind);
         }
     );
   }
 
   @Test
-  public void t1() {
+  @DisplayName("insert 테스트")
+  public void insert() {
+    Sql sql = simpleDb.genSql();
+
+    /*
+    == raw sql ==
+    INSERT INTO article
+    SET createDate = NOW(),
+    modifiedDate = NOW(),
+    subject = '제목 new',
+    content = '내용 new',
+    */
+
+    sql.append("INSERT INTO article")
+        .append("SET createDate = NOW()")
+        .append(", modifiedDate = NOW()")
+        .append(", subject = ?", "제목 new")
+        .append(", content = ?", "내용 new");
+
+    long newId = sql.insert();
+
+    assertThat(newId).isGreaterThan(0);
   }
 
   // 테스트 종료 후 연결 종료를 위한 메서드
