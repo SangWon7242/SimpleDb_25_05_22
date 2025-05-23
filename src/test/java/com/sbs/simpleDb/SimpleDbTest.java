@@ -2,30 +2,30 @@ package com.sbs.simpleDb;
 
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.stream.IntStream;
+
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @TestInstance(PER_CLASS)
 public class SimpleDbTest {
   private SimpleDb simpleDb;
   
-  // beforeAll : 다른 테스트 케이스 실행 전에 제일 먼전 실행되는 메서드
+  // beforeAll : 다른 테스트 케이스 실행 전에 제일 먼저 실행되는 메서드
   @BeforeAll
   public void beforeAll() {
     simpleDb = new SimpleDb("localhost", "root", "", "simpleDb_test");
     simpleDb.setDevMode(true);
+
+    createArticleTable();
   }
 
-  @Test
-  @DisplayName("t1: 데이터 베이스 연결 테스트")
-  public void t1() {
-    assertTrue(simpleDb.isConnected(), "데이터베이스 연결이 실패했습니다.");
-    System.out.println("DB 연결 성공");
+  @BeforeEach
+  public void beforeEach() {
+    truncateArticleTable();
+    makeArticleTestData();
   }
 
-  @Test
-  @DisplayName("t2: DB에 article 테이블 생성")
-  public void t2() {
+  private void createArticleTable() {
     simpleDb.run("DROP TABLE IF EXISTS article");
 
     simpleDb.run("""
@@ -38,8 +38,33 @@ public class SimpleDbTest {
             isBlind BIT(1) NOT NULL DEFAULT 0
         );
         """);
+  }
 
-    System.out.println("테이블 생성 완료!");
+  private void truncateArticleTable() {
+    simpleDb.run("TRUNCATE article");
+  }
+
+  private void makeArticleTestData() {
+    IntStream.rangeClosed(1, 6).forEach(
+        no -> {
+          boolean isBlind = no > 3;
+          String subject = "제목 %s".formatted(no);
+          String content = "내용 %s".formatted(no);
+
+          simpleDb.run("""
+            INSERT INTO article
+            SET createDate = NOW(),
+            modifiedDate = NOW(),
+            subject = '%s',
+            content = '%s',
+            isBlind = %s;
+            """.formatted(subject, content, isBlind));
+        }
+    );
+  }
+
+  @Test
+  public void t1() {
   }
 
   // 테스트 종료 후 연결 종료를 위한 메서드

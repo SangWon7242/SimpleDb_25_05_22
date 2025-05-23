@@ -1,5 +1,7 @@
 package com.sbs.simpleDb;
 
+import lombok.Setter;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -8,12 +10,16 @@ import java.sql.Statement;
 public class SimpleDb {
   private Connection conn;
 
+  @Setter
+  private boolean devMode;
+
   public SimpleDb(String host, String username, String password, String dbName) {
     try {
       Class.forName("com.mysql.cj.jdbc.Driver");
       String url = "jdbc:mysql://%s:3306/%s?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeBehavior=convertToNull".formatted(host, dbName);
 
       conn = DriverManager.getConnection(url, username, password);
+      System.out.println("DB 연결 성공!");
     } catch (ClassNotFoundException e) {
       throw new RuntimeException("MySQL JDBC 드라이버를 찾을 수 없습니다.", e);
     } catch (SQLException e) {
@@ -23,24 +29,14 @@ public class SimpleDb {
     }
   }
 
-  public void setDevMode(boolean mode) {
-
-  }
-
   public void run(String sql) {
+    System.out.println("SQL : " + sql);
+
     try {
       Statement stmt = conn.createStatement();
       stmt.executeUpdate(sql);
     } catch (SQLException e) {
       throw new RuntimeException("SQL 실행 중 오류 발생", e);
-    }
-  }
-
-  public boolean isConnected() {
-    try {
-      return conn != null && !conn.isClosed();
-    } catch (SQLException e) {
-      return false;
     }
   }
 
