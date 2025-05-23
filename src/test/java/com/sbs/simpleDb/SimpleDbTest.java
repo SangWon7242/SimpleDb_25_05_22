@@ -23,6 +23,25 @@ public class SimpleDbTest {
     System.out.println("DB 연결 성공");
   }
 
+  @Test
+  @DisplayName("t2: DB에 article 테이블 생성")
+  public void t2() {
+    simpleDb.run("DROP TABLE IF EXISTS article");
+
+    simpleDb.run("""
+        CREATE TABLE article (
+            id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+            createDate DATETIME NOT NULL,
+            modifiedDate DATETIME NOT NULL,
+            subject VARCHAR(100) NOT NULL,
+            content TEXT NOT NULL,
+            isBlind BIT(1) NOT NULL DEFAULT 0
+        );
+        """);
+
+    System.out.println("테이블 생성 완료!");
+  }
+
   // 테스트 종료 후 연결 종료를 위한 메서드
   @AfterAll
   public void afterAll() {

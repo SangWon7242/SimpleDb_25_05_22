@@ -3,6 +3,7 @@ package com.sbs.simpleDb;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class SimpleDb {
   private Connection conn;
@@ -24,6 +25,15 @@ public class SimpleDb {
 
   public void setDevMode(boolean mode) {
 
+  }
+
+  public void run(String sql) {
+    try {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(sql);
+    } catch (SQLException e) {
+      throw new RuntimeException("SQL 실행 중 오류 발생", e);
+    }
   }
 
   public boolean isConnected() {
